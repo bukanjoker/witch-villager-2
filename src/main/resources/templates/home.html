@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Witch & Villager</title>
+</head>
+<body>
+    <div class="mt-3 mb-5 text-center">
+        <img src="witch_image.gif" class="witch-image" alt="witch" /><br>
+        <a class="logo-app" href="https://mazeon.tumblr.com/post/65356579669/halloween-witch-cooking-up-something-nasty-shown">
+            <i>image source</i>
+        </a>
+    </div>
+
+    <form id="formVillager" onsubmit="return handleExecute()" method="post">
+        <div class="mb-4 col-sm-3 d-grid mx-auto">
+            <div th:each="person, i :${village}" class="mb-3">
+                <h5 class="mb-3" th:text="'Person ' + (${i.index} + 1)"></h5>
+                <div class="row">
+                    <label class="col-sm-4 col-form-label">Age of Death</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" th:name="${i.index}+'-ageOfDeath'" />
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-4 col-form-label">Year of Death</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" th:name="${i.index}+'-yearOfDeath'" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-5 col-sm-3 d-grid gap-2 mx-auto">
+            <button class="btn btn-danger" type="submit">
+                Execute
+            </button>
+        </div>
+    </form>
+
+    <script type="module" src="/src/assets/bootstrap/bootstrap.min.js"></script>
+    <script>
+        function handleExecute() {
+            const bodyData = [];
+            const form = document.getElementById("formVillager");
+            const formData = new FormData(form);
+            for (const [key, value] of formData) {
+                const index = key.split('-')[0]
+                const name = key.split('-')[1]
+
+                if (!bodyData[index]) bodyData.push({[name]: value})
+                bodyData[index][name] = value
+            }
+
+            fetch("/execute", {
+                method: "POST",
+                body: JSON.stringify(bodyData),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(res => res.text())
+            .then(res => {
+                // valid
+                if (parseFloat(res) > -1) {
+                    alert(res+" : witch leave the village")
+                }
+                // not valid
+                else {
+                    alert(res+" : invalid value")
+                }
+            })
+            .catch(error => console.log(error))
+            return false;
+        }
+    </script>
+</body>
+</html>
