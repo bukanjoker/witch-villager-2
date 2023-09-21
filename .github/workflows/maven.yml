@@ -16,10 +16,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    permissions:
+    permissions: 
       contents: read
-      pages: write
-      id-token: write
+      packages: write 
 
     steps:
     - uses: actions/checkout@v3
@@ -32,10 +31,8 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Deploy GitHub Pages site
-      uses: actions/deploy-pages@v1.2.9
-      with:
-        # GitHub token
-        token: ${{secrets.TOKEN}}
-        folder: target
+    - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
       
